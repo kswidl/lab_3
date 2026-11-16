@@ -1,0 +1,45 @@
+@startuml
+title UC-03 — Успішне додавання гри до бібліотеки
+
+actor "Авторизований користувач" as User
+boundary "Інтерфейс користувача" as UI
+control "LibraryService" as LibraryService
+control "AuthService" as AuthService
+database "GameRepository" as GameRepo
+database "LibraryRepository" as LibraryRepo
+
+User -> UI : addGame(gameId)
+activate UI
+
+UI -> LibraryService : addGame(userId, gameId)
+activate LibraryService
+
+LibraryService -> AuthService : checkAuthorization(userId)
+activate AuthService
+AuthService --> LibraryService : authorized
+deactivate AuthService
+
+LibraryService -> GameRepo : findGame(gameId)
+activate GameRepo
+GameRepo --> LibraryService : game
+deactivate GameRepo
+
+LibraryService -> LibraryRepo : containsGame(userId, gameId)
+activate LibraryRepo
+LibraryRepo --> LibraryService : false
+deactivate LibraryRepo
+
+opt [гра ще не додана до бібліотеки]
+    LibraryService -> LibraryRepo : addGame(userId, gameId)
+    activate LibraryRepo
+    LibraryRepo --> LibraryService : success
+    deactivate LibraryRepo
+end
+
+LibraryService --> UI : additionSuccessful
+deactivate LibraryService
+
+UI --> User : Показати повідомлення про успішне додавання
+deactivate UI
+
+@enduml
