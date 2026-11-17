@@ -1,0 +1,34 @@
+@startuml
+title UC-03 — Повторне додавання гри
+
+actor "Авторизований користувач" as User
+boundary "Інтерфейс користувача" as UI
+control "LibraryService" as LibraryService
+control "AuthService" as AuthService
+database "LibraryRepository" as LibraryRepo
+
+User -> UI : addGame(gameId)
+activate UI
+
+UI -> LibraryService : addGame(userId, gameId)
+activate LibraryService
+
+LibraryService -> AuthService : checkAuthorization(userId)
+activate AuthService
+AuthService --> LibraryService : authorized
+deactivate AuthService
+
+LibraryService -> LibraryRepo : containsGame(userId, gameId)
+activate LibraryRepo
+LibraryRepo --> LibraryService : true
+deactivate LibraryRepo
+
+opt [гра вже знаходиться в бібліотеці]
+    LibraryService --> UI : gameAlreadyExists
+    UI --> User : Показати повідомлення про наявність гри
+end
+
+deactivate LibraryService
+deactivate UI
+
+@enduml
