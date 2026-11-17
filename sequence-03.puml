@@ -1,0 +1,28 @@
+@startuml
+title UC-03 — Спроба гостя додати гру
+
+actor "Гість" as Guest
+boundary "Інтерфейс користувача" as UI
+control "LibraryService" as LibraryService
+control "AuthService" as AuthService
+
+Guest -> UI : addGame(gameId)
+activate UI
+
+UI -> LibraryService : addGame(gameId)
+activate LibraryService
+
+LibraryService -> AuthService : checkCurrentSession()
+activate AuthService
+AuthService --> LibraryService : notAuthorized
+deactivate AuthService
+
+opt [користувач не авторизований]
+    LibraryService --> UI : rejectRequest
+    UI --> Guest : Показати повідомлення про необхідність входу
+end
+
+deactivate LibraryService
+deactivate UI
+
+@enduml
